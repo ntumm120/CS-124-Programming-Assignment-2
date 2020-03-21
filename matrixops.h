@@ -34,7 +34,7 @@ void MatrixOps::make(vector<vector<int> > &first, vector<vector<int> > &second, 
 }
 
 void MatrixOps::makeidentity(vector<vector<int> > &first, vector<vector<int> > &second, int n){
-    // initialize matrices with 0s and 1s, can change later to 0, 1, -1
+
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             if (i == j){

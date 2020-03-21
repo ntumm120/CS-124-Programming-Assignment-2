@@ -8,18 +8,23 @@ using namespace std;
 
 void conventional(vector<vector<int> > &first,
                          vector<vector<int> > &second, vector<vector<int> > &result, int n){
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            int dot  = 0;
-            for (int k = 0; k < n; k++) {
+    for (int i = 0; i < n + 1; ++i) {
+        for (int j = 0; j < n + 1; ++j) {
+            int dot = 0;
+            for (int k = 0; k < n + 1; ++k) {
                 dot += first[i][k] * second[k][j];
             }
             result[i][j] = dot;
         }
     }
-    for (int i = 0; i < n; i++){
-        cout << result[i][i] << '\n';
+    for(int i=0; i<n; i++){
+        for(int j=0; j<n; j++){
+            if (i == j) {
+                cout << result[i][j];
+            }
+        }
     }
+    cout << "\n";
 }
 
 //To execute normal Strassen let crossover = 0, currently have crossover in command-line
@@ -136,9 +141,14 @@ void strassen(vector<vector<int> > &first, vector<vector<int> > &second, vector<
         }
     }
 
-    for (int i = 0; i < n; i++){
-       cout << result[i][i] << '\n';
+    for(int i=0; i<n; i++){
+        for(int j=0; j<n; j++){
+            if (i == j) {
+                cout << result[i][j];
+            }
+        }
     }
+    cout << "\n";
 
 }
 
@@ -148,7 +158,7 @@ int main(int argc, char *argv[])
     // randomly generated numbers to test
     
     //Still need to figure out experimental crossover point, possibly using time library,
-    // not sure how to calculate numbers of operations
+    // not sure how to calculate number of operations
 
     long double startTime;
     long double conventionaltime;
@@ -170,23 +180,25 @@ int main(int argc, char *argv[])
     MatrixOps help = *(new MatrixOps());
     help.make(first,second,dim);
 
+
     vector<vector<int> > test(dim,vector<int>(dim));
-    help.make(test, test, dim);
+    help.makeidentity(test, test, dim);
+
 
     //Have to fix timing stuff, not sure if it works
 
     startTime = time(0);
-    // conventional(test,test,result, 2);
+    conventional(test,test,result, dim);
     conventionaltime = time(0) - startTime;
     
     //No crossover strassen (DOESNT WORK NEED TO FIGURE OUT WHY)
-    //startTime = time(0);
-    //strassen(first, second, result ,dim, 0);
-    //normaltime = time(0) - startTime;
+    startTime = time(0);
+    //strassen(first, second, result, dim, 0);
+    normaltime = time(0) - startTime;
     
     //Crossover strassen
     startTime = time(0);
-    strassen(test, test, result ,2, crossover);
+    //strassen(test, test, result, dim, crossover);
     varianttime = time(0) - startTime;
 
 
