@@ -18,6 +18,10 @@ class MatrixOps{
         void pad(vector<vector<int> > &padfirst, vector<vector<int> > &padsecond,
                        vector<vector<int> > &first, vector<vector<int> > &second, int n);
         MatrixOps();
+        int findOptDim(int n, int crossover);
+        void initPadding(vector<vector<int> > &first, int newdim);
+        void removePadding(vector<vector<int> > &first, int newdim);
+        void printDiagonal(vector<vector<int> > &first, int dimension);
 };
 
 MatrixOps::MatrixOps() {
@@ -87,5 +91,40 @@ void MatrixOps::pad(vector<vector<int> > &padfirst, vector<vector<int> > &padsec
             padfirst[i][j] = 0;
             padsecond[i][j] = 0;
         }
+    }
+}
+
+int MatrixOps::findOptDim(int n, int crossover){
+    int counter = 0;
+    while (n > crossover) {
+        if (n % 2 == 0) {
+            n /= 2;
+        }
+        else {
+        n = (n + 1) / 2;
+        counter++;
+        }
+    }
+    return n*pow(2,counter);
+}
+
+
+void MatrixOps::initPadding(vector<vector<int> > &first, int newdim){
+    first.resize(newdim);
+    for (int i = 0; i < newdim; i++){
+        first[i].resize(newdim);
+    }
+}
+
+void MatrixOps::removePadding(vector<vector<int> > &first, int newdim){
+    first.resize(newdim);
+    for (int i = 0; i < newdim; i++){
+        first.resize(newdim);
+    }
+}
+
+void MatrixOps::printDiagonal(vector<vector<int> > &first, int dimension){
+    for (int i = 0; i < dimension; ++i) {
+        printf("%d\n", first[i][i]);
     }
 }

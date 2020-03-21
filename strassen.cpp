@@ -3,6 +3,7 @@
 #include <ctime>
 #include <cstdlib>
 #include "matrixops.h"
+#include <fstream>
 
 using namespace std;
 
@@ -17,14 +18,6 @@ void conventional(vector<vector<int> > &first,
             result[i][j] = dot;
         }
     }
-    for(int i=0; i<n; i++){
-        for(int j=0; j<n; j++){
-            if (i == j) {
-                cout << result[i][j];
-            }
-        }
-    }
-    cout << "\n";
 }
 
 //To execute normal Strassen let crossover = 0, currently have crossover in command-line
@@ -141,20 +134,63 @@ void strassen(vector<vector<int> > &first, vector<vector<int> > &second, vector<
         }
     }
 
-    for(int i=0; i<n; i++){
-        for(int j=0; j<n; j++){
-            if (i == j) {
-                cout << result[i][j];
-            }
+}
+
+void findOptimalconvThreshold() {
+
+    for (int convThreshold = 8; convThreshold <= 256; convThreshold*=2){
+        //for (convThreshold = 2; convThreshold <= 64; convThreshold++){
+        double total = 0;
+        //cout << "multiplying matrices, n = " << i << endl;
+        for (int j = 0; j < 5; j ++){
+            vector<vector<int> > &first();
+            vector<vector<int> > &second();
+            MatrixOps help = *(new MatrixOps());
+            help.makeidentity(first, 256);
+            help.makeidentity(second, 256);
+
+            clock_t start;
+            start = clock();
+
+            vector<vector<int> > &result() = multiply(m1, m2);
+            total += (std::clock() - start) / (double)(CLOCKS_PER_SEC);
+            delete(m1);
+            delete(m2);
+            delete(m3);
+        }
+
+        cout << convThreshold << "\t" << total / 5 << endl;
+
+        //cout << "finished multiplying.\n" << endl;
+
+    }
+}
+
+vector<vector<int> >& FileToMatrix(char* inputfile, int dimension, int order){
+    vector<vector<int>> matrix(dimension, vector<int>(dimension));
+
+    ifstream inFile(inputfile);
+    string line;
+    for (int i = 0; i < pow(dimension,2)*order; ++i)
+    {
+        getline(inFile, line);
+    }
+
+    for (int i = 0; i < dimension; ++i)
+    {
+        for (int j = 0; j < dimension; ++j)
+        {
+            getline(inFile, line);
+            matrix[i][j] = stoi(line);
         }
     }
-    cout << "\n";
-
+    inFile.close();
+    return matrix;
 }
 
 int main(int argc, char *argv[])
 {
-    //Need to write code to read a file of numbers into a matrix, for now we will use
+    //Wrote function to read in a file of numbers, for now we will use
     // randomly generated numbers to test
     
     //Still need to figure out experimental crossover point, possibly using time library,
