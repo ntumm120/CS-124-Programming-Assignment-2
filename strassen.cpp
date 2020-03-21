@@ -187,19 +187,20 @@ int main(int argc, char *argv[])
 
     //Have to fix timing stuff, not sure if it works
 
+    //Conventional fully works on test matrices
     startTime = time(0);
-    conventional(test,test,result, dim);
-    conventionaltime = time(0) - startTime;
+    //conventional(test,test,result, dim);
+    conventionaltime = 1000 * (time(0) - startTime);
     
     //No crossover strassen (DOESNT WORK NEED TO FIGURE OUT WHY)
     startTime = time(0);
     //strassen(first, second, result, dim, 0);
-    normaltime = time(0) - startTime;
+    normaltime = 1000 * (time(0) - startTime);
     
-    //Crossover strassen
+    //Crossover strassen doesn't work either
     startTime = time(0);
-    //strassen(test, test, result, dim, crossover);
-    varianttime = time(0) - startTime;
+    strassen(test, test, result, dim, crossover);
+    varianttime = 1000 * (time(0) - startTime);
 
 
     cout << "Standard"<< "\n";

@@ -74,10 +74,18 @@ int MatrixOps::powerround(int n){
 
 void MatrixOps::pad(vector<vector<int> > &padfirst, vector<vector<int> > &padsecond,
                           vector<vector<int> > &first, vector<vector<int> > &second, int n){
+
+    int paddedn = powerround(n);
     for (int i = 0; i < n; i++){
         for (int j = 0; j < n; j++){
             padfirst[i][j] = first[i][j];
             padsecond[i][j] = second[i][j];
+        }
+    }
+    for (int i = n; i < paddedn; i++){
+        for (int j = n; j < paddedn; j++){
+            padfirst[i][j] = 0;
+            padsecond[i][j] = 0;
         }
     }
 }
