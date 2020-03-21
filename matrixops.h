@@ -9,9 +9,10 @@ using namespace std;
 class MatrixOps{
     public:
         void make(vector<vector<int> > &first, vector<vector<int> > &second, int n);
+        void makeidentity(vector<vector<int> > &first, vector<vector<int> > &second, int n);
         void add(vector<vector<int> > &first, vector<vector<int> > &second,
              vector<vector<int> > &result, int n);
-        void subtract(vector<vector<int> > &first, vector<vector<int> > &second,
+        void sub(vector<vector<int> > &first, vector<vector<int> > &second,
              vector<vector<int> > &result, int n);
         int powerround(int n);
         void pad(vector<vector<int> > &padfirst, vector<vector<int> > &padsecond,
@@ -32,6 +33,22 @@ void MatrixOps::make(vector<vector<int> > &first, vector<vector<int> > &second, 
     }
 }
 
+void MatrixOps::makeidentity(vector<vector<int> > &first, vector<vector<int> > &second, int n){
+    // initialize matrices with 0s and 1s, can change later to 0, 1, -1
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (i == j){
+                first[i][j] = 1;
+                second[i][j] = 1;
+            }
+            else{
+                first[i][j] = 0;
+                second[i][j] = 0;
+            }
+        }
+    }
+}
+
 void MatrixOps::add(vector<vector<int> > &first, vector<vector<int> > &second,
         vector<vector<int> > &result, int n){
     
@@ -42,7 +59,7 @@ void MatrixOps::add(vector<vector<int> > &first, vector<vector<int> > &second,
     }
 }
 
-void MatrixOps::subtract(vector<vector<int> > &first, vector<vector<int> > &second,
+void MatrixOps::sub(vector<vector<int> > &first, vector<vector<int> > &second,
               vector<vector<int> > &result, int n){
     for(int i=0; i<n; i++){
         for(int j=0; j<n; j++){

@@ -59,13 +59,13 @@ void strassen(vector<vector<int> > &first, vector<vector<int> > &second, vector<
         vector<vector<int> > ABlock(blocksize, block);
         vector<vector<int> > BBlock(blocksize, block);
 
-        vector<vector<int> > m1(blocksize, block);
-        vector<vector<int> > m2(blocksize, block);
-        vector<vector<int> > m3(blocksize, block);
-        vector<vector<int> > m4(blocksize, block);
-        vector<vector<int> > m5(blocksize, block);
-        vector<vector<int> > m6(blocksize, block);
-        vector<vector<int> > m7(blocksize, block);
+        vector<vector<int> > p1(blocksize, block);
+        vector<vector<int> > p2(blocksize, block);
+        vector<vector<int> > p3(blocksize, block);
+        vector<vector<int> > p4(blocksize, block);
+        vector<vector<int> > p5(blocksize, block);
+        vector<vector<int> > p6(blocksize, block);
+        vector<vector<int> > p7(blocksize, block);
 
         //partitioning matrix into its quadrants/blocks
         for (int i=0; i<blocksize; i++){
@@ -84,39 +84,39 @@ void strassen(vector<vector<int> > &first, vector<vector<int> > &second, vector<
         //Constructing submatrices
         helper.add(firstq1, firstq4, ABlock, blocksize);
         helper.add(secondq1, secondq4, BBlock, blocksize);
-        strassen(ABlock, BBlock, m1, blocksize, crossover);
+        strassen(ABlock, BBlock, p1, blocksize, crossover);
 
         helper.add(firstq3, firstq4, ABlock, blocksize);
-        strassen(ABlock, secondq1, m2, blocksize, crossover);
+        strassen(ABlock, secondq1, p2, blocksize, crossover);
 
-        helper.subtract(secondq2, secondq4, BBlock, blocksize);
-        strassen(firstq1, BBlock, m3, blocksize, crossover);
+        helper.sub(secondq2, secondq4, BBlock, blocksize);
+        strassen(firstq1, BBlock, p3, blocksize, crossover);
 
-        helper.subtract(secondq3, secondq1, BBlock, blocksize);
-        strassen(firstq4, BBlock, m4, blocksize, crossover);
+        helper.sub(secondq3, secondq1, BBlock, blocksize);
+        strassen(firstq4, BBlock, p4, blocksize, crossover);
 
         helper.add(firstq1, firstq2, ABlock, blocksize);
-        strassen(ABlock, secondq4, m5, blocksize, crossover);
+        strassen(ABlock, secondq4, p5, blocksize, crossover);
 
-        helper.subtract(firstq3, firstq1, ABlock, blocksize);
+        helper.sub(firstq3, firstq1, ABlock, blocksize);
         helper.add(secondq1, secondq2, BBlock, blocksize);
-        strassen(ABlock, BBlock, m6, blocksize, crossover);
+        strassen(ABlock, BBlock, p6, blocksize, crossover);
 
-        helper.subtract(firstq2, firstq4, ABlock, blocksize);
+        helper.sub(firstq2, firstq4, ABlock, blocksize);
         helper.add(secondq2, secondq4, BBlock, blocksize);
-        strassen(ABlock, BBlock, m7, blocksize, crossover);
+        strassen(ABlock, BBlock, p7, blocksize, crossover);
 
-        helper.add(m1, m4, ABlock, blocksize);
-        helper.subtract(ABlock, m5, BBlock, blocksize);
-        helper.add(BBlock, m7, secondq1, blocksize);
+        helper.add(p1, p4, ABlock, blocksize);
+        helper.sub(ABlock, p5, BBlock, blocksize);
+        helper.add(BBlock, p7, secondq1, blocksize);
 
-        helper.add(m3, m5, thirdq2, blocksize);
+        helper.add(p3, p5, thirdq2, blocksize);
 
-        helper.add(m2, m4, thirdq3, blocksize);
+        helper.add(p2, p4, thirdq3, blocksize);
 
-        helper.subtract(m1, m2, ABlock, blocksize);
-        helper.add(ABlock, m3, BBlock, blocksize);
-        helper.add(BBlock, m6, thirdq4, blocksize);
+        helper.sub(p1, p2, ABlock, blocksize);
+        helper.add(ABlock, p3, BBlock, blocksize);
+        helper.add(BBlock, p6, thirdq4, blocksize);
 
         //calculate result matrix
         for(int i=0; i<blocksize; i++){
@@ -170,10 +170,13 @@ int main(int argc, char *argv[])
     MatrixOps help = *(new MatrixOps());
     help.make(first,second,dim);
 
+    vector<vector<int> > test(dim,vector<int>(dim));
+    help.make(test, test, dim);
+
     //Have to fix timing stuff, not sure if it works
 
     startTime = time(0);
-    conventional(first,second,result,dim);
+    // conventional(test,test,result, 2);
     conventionaltime = time(0) - startTime;
     
     //No crossover strassen (DOESNT WORK NEED TO FIGURE OUT WHY)
@@ -183,7 +186,7 @@ int main(int argc, char *argv[])
     
     //Crossover strassen
     startTime = time(0);
-    strassen(first, second, result ,dim, crossover);
+    strassen(test, test, result ,2, crossover);
     varianttime = time(0) - startTime;
 
 
