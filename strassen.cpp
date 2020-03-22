@@ -136,8 +136,7 @@ void strassen(vector<vector<int> > &first, vector<vector<int> > &second, vector<
 
 }
 
-//void multiply(vector<vector<int> > &, vector<vector<int> > &, vector<vector<int> > &, int , int , int , int , int , int , int);
-
+//More efficient version of strassen, divides quadrants in signature
 void strassenMult(vector<vector<int> > &A, vector<vector<int> > &B, vector<vector<int> > &C,
         int topA, int leftA, int topB, int leftB, int topC, int leftC, int dimension, int crossover) {
 
@@ -228,15 +227,6 @@ void strassenMult(vector<vector<int> > &A, vector<vector<int> > &B, vector<vecto
     }
 }
 
-/**void multiply(vector<vector<int> > &A, vector<vector<int> > &B, vector<vector<int> > &C, int topA, int leftA, int topB, int leftB, int topC, int leftC, int dimension, int crossover) {
-    if (dimension > crossover) {
-        strassenMult(A, B, C, topA, leftA, topB, leftB, topC, leftC, dimension);
-    }
-    else {
-        conventional(A, B, C, dimension);
-    }
-}**/
-
 vector<vector<int> > & multiply(vector<vector<int> > &A, vector<vector<int> > &B, vector<vector<int> > &C, int crossover){
 
     MatrixOps helper = *(new MatrixOps());
@@ -254,26 +244,26 @@ vector<vector<int> > & multiply(vector<vector<int> > &A, vector<vector<int> > &B
     return C;
 }
 
-void findOptimalconvThreshold() {
+void findcrossover() {
 
-    for (int convThreshold = 8; convThreshold <= 256; convThreshold*=2){
+    for (int crossover = 1; crossover <= 1024; crossover*=2){
         double total = 0;
-        for (int j = 0; j < 5; j ++){
-            vector<vector<int> > first(256, vector<int>(256));
-            vector<vector<int> > second(256, vector<int>(256));
-            vector<vector<int> > third(256, vector<int>(256));
+        for (int j = 0; j < 3; j++){
+            vector<vector<int> > first(1024, vector<int>(1024));
+            vector<vector<int> > second(1024, vector<int>(1024));
+            vector<vector<int> > third(1024, vector<int>(1024));
             MatrixOps help = *(new MatrixOps());
             help.makeidentity(first, second, 256);
 
             clock_t start;
             start = clock();
 
-            vector<vector<int> > result(256, vector<int>(256));
-            result = multiply(first, second, third, convThreshold);
+            vector<vector<int> > result(1024, vector<int>(1024));
+            result = multiply(first, second, third, crossover);
             total += (std::clock() - start) / (double)(CLOCKS_PER_SEC);
         }
 
-        cout << convThreshold << "\t" << total / 5 << endl;
+        cout << crossover << "\t" << total / 3 << endl;
 
     }
 }
@@ -305,12 +295,12 @@ int main(int argc, char *argv[])
     //Wrote function to read in a file of numbers, for now we will use
     // randomly generated numbers to test
     
-    //Still need to figure out experimental crossover point, possibly using time library,
-    // not sure how to calculate number of operations
+    //Still need to figure out experimental crossover point, made function to do it,
+    // not sure how to calculate exact number of operations
 
     int flag = atoi(argv[3]);
     if (flag == 0){
-        findOptimalconvThreshold();
+        findcrossover();
     }
 
     if (flag == 1) {
