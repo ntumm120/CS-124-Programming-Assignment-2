@@ -242,15 +242,15 @@ vector<vector<int> > & multiply(vector<vector<int> > &A, vector<vector<int> > &B
     MatrixOps helper = *(new MatrixOps());
     int dimension = A.size();
 
-    int padding = helper.findOptDim(dimension, crossover);
-    helper.initPadding(A, padding);
-    helper.initPadding(B, padding);
-    helper.initPadding(C, padding);
+    int padding = helper.findPad(dimension, crossover);
+    helper.makepad(A, padding);
+    helper.makepad(B, padding);
+    helper.makepad(C, padding);
     strassenMult(A,B,C,0,0,0,0,0,0,padding, crossover);
 
-    helper.removePadding(A, dimension);
-    helper.removePadding(B, dimension);
-    helper.removePadding(C, dimension);
+    helper.removepad(A, dimension);
+    helper.removepad(B, dimension);
+    helper.removepad(C, dimension);
     return C;
 }
 
@@ -338,9 +338,13 @@ int main(int argc, char *argv[])
         vector<vector<int> > test(dim, vector<int>(dim));
         help.makeidentity(test, test, dim);
 
+        vector<vector<int> > matResult(dim, vector<int>(dim));
+        matResult = multiply(test, test, result, crossover);
+
+        help.printDiagonal(matResult, dim);
 
         //Have to fix timing stuff, not sure if it works
-
+        /**
         //Conventional fully works on test matrices
         startTime = time(0);
         //conventional(test,test,result, dim);
@@ -353,7 +357,7 @@ int main(int argc, char *argv[])
 
         //Crossover strassen doesn't work either
         startTime = time(0);
-        strassen(test, test, result, dim, crossover);
+        //strassen(test, test, result, dim, crossover);
         varianttime = 1000 * (time(0) - startTime);
 
 
@@ -371,7 +375,7 @@ int main(int argc, char *argv[])
         cout << "Crossover used: " << crossover << "\n";
         cout << "Size "
              << dim << " : " << varianttime << "\n";
-        cout << "\n";
+        cout << "\n";**/
 
         return 0;
     }
