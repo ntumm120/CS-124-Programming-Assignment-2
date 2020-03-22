@@ -20,8 +20,8 @@ void conventional(vector<vector<int> > &first,
     }
 }
 
-//To execute normal Strassen let crossover = 0, currently have crossover in command-line
-
+//To execute normal Strassen let crossover = 0, currently have crossover in command-line, this strassen
+//doesn't split up the quadrants in signature of method
 void strassen(vector<vector<int> > &first, vector<vector<int> > &second, vector<vector<int> > &result, int n, int crossover){
 
     MatrixOps helper = *(new MatrixOps());
@@ -136,39 +136,151 @@ void strassen(vector<vector<int> > &first, vector<vector<int> > &second, vector<
 
 }
 
+//void multiply(vector<vector<int> > &, vector<vector<int> > &, vector<vector<int> > &, int , int , int , int , int , int , int);
+
+void strassenMult(vector<vector<int> > &A, vector<vector<int> > &B, vector<vector<int> > &C,
+        int topA, int leftA, int topB, int leftB, int topC, int leftC, int dimension, int crossover) {
+
+    if (dimension > crossover) {
+        MatrixOps helper = *(new MatrixOps());
+        // C12 = A21 - A11
+        helper.sub(A, B, C, topA + dimension / 2, leftA, topA, leftA, topC, leftC + dimension / 2, dimension / 2);
+        // C21 = B11 + B12
+        helper.add(B, B, C, topB, leftB, topB, leftB + dimension / 2, topC + dimension / 2, leftC, dimension / 2);
+        // C22 = C12 * C21
+
+        strassenMult(C, C, C, topC, leftC + dimension / 2, topC + dimension / 2, leftC, topC + dimension / 2,
+                 leftC + dimension / 2, dimension / 2, crossover);
+
+        //C12 = A12 - A22
+        helper.sub(A, A, C, topA, leftA + dimension / 2, topA + dimension / 2, leftA + dimension / 2, topC,
+                   leftC + dimension / 2, dimension / 2);
+        //C21 = B21 + B22
+        helper.add(B, B, C, topB + dimension / 2, leftB, topB + dimension / 2, leftB + dimension / 2,
+                   topC + dimension / 2, leftC, dimension / 2);
+        //C11 = C12 * C21
+
+        strassenMult(C, C, C, topC, leftC + dimension / 2, topC + dimension / 2, leftC, topC, leftC, dimension / 2, crossover);
+
+        //C12 = A11 + A22
+        helper.add(A, A, C, topA, leftA, topA + dimension / 2, leftA + dimension / 2, topC, leftC + dimension / 2,
+                   dimension / 2);
+        //C21 = B11 + B22
+        helper.add(B, B, C, topB, leftB, topB + dimension / 2, leftB + dimension / 2, topC + dimension / 2, leftC,
+                   dimension / 2);
+
+        vector<vector<int> > newA(dimension / 2, vector<int>(dimension / 2));
+        vector<vector<int> > newB(dimension / 2, vector<int>(dimension / 2));
+        helper.make(newA, newB, dimension / 2); // TODO deal with non-power of 2 case
+
+
+        //newA = C12*C21
+        strassenMult(C, C, newA, topC, leftC + dimension / 2, topC + dimension / 2, leftC, 0, 0, dimension / 2, crossover);
+        //C11 = newA + C11
+        helper.add(newA, C, C, 0, 0, topC, leftC, topC, leftC, dimension / 2);
+        //C22 = newA + C22
+        helper.add(newA, C, C, 0, 0, topC + dimension / 2, leftC + dimension / 2, topC + dimension / 2,
+                   leftC + dimension / 2, dimension / 2);
+
+        //newB = A21 + A22
+        helper.add(A, A, newB, topA + dimension / 2, leftA, topA + dimension / 2, leftA + dimension / 2, 0, 0,
+                   dimension / 2);
+        //C21 = newB * B11
+
+        strassenMult(newB, B, C, 0, 0, topB, leftB, topC + dimension / 2, leftC, dimension / 2, crossover);
+
+        //C22 = C22 - C21
+        helper.sub(C, C, C, topC + dimension / 2, leftC + dimension / 2, topC + dimension / 2, leftC,
+                   topC + dimension / 2, leftC + dimension / 2, dimension / 2);
+        //newA = B21 - B11
+        helper.sub(B, B, newA, topB + dimension / 2, leftB, topB, leftB, 0, 0, dimension / 2);
+        //newB = A22 * newA
+
+        strassenMult(A, newA, newB, topA + dimension / 2, leftA + dimension / 2, 0, 0, 0, 0, dimension / 2, crossover);
+
+        //C21 = C21 + newB
+        helper.add(C, newB, C, topC + dimension / 2, leftC, 0, 0, topC + dimension / 2, leftC, dimension / 2);
+        //C11 = C11 + newB
+        helper.add(C, newB, C, topC, leftC, 0, 0, topC, leftC, dimension / 2);
+        //newA = B12 - B22
+        helper.sub(B, B, newA, topB, leftB + dimension / 2, topB + dimension / 2, leftB + dimension / 2, 0, 0,
+                   dimension / 2);
+        //C12 = A11 * newA
+
+        strassenMult(A, newA, C, topA, leftA, 0, 0, topC, leftC + dimension / 2, dimension / 2, crossover);
+
+        //C22 = C22 + C12
+        helper.add(C, C, C, topC + dimension / 2, leftC + dimension / 2, topC, leftC + dimension / 2,
+                   topC + dimension / 2, leftC + dimension / 2, dimension / 2);
+        //newB = A11 + A12
+        helper.add(A, A, newB, topA, leftA, topA, leftA + dimension / 2, 0, 0, dimension / 2);
+        //newA = newB * B22
+
+        strassenMult(newB, B, newA, 0, 0, topB + dimension / 2, leftB + dimension / 2, 0, 0, dimension / 2, crossover);
+
+        //C12 = C12 + newA
+        helper.add(C, newA, C, topC, leftC + dimension / 2, 0, 0, topC, leftC + dimension / 2, dimension / 2);
+        //C11 = C11 - newA
+        helper.sub(C, newA, C, topC, leftC, 0, 0, topC, leftC, dimension / 2);
+    }
+    else{
+        conventional(A, B, C, dimension);
+    }
+}
+
+/**void multiply(vector<vector<int> > &A, vector<vector<int> > &B, vector<vector<int> > &C, int topA, int leftA, int topB, int leftB, int topC, int leftC, int dimension, int crossover) {
+    if (dimension > crossover) {
+        strassenMult(A, B, C, topA, leftA, topB, leftB, topC, leftC, dimension);
+    }
+    else {
+        conventional(A, B, C, dimension);
+    }
+}**/
+
+vector<vector<int> > & multiply(vector<vector<int> > &A, vector<vector<int> > &B, vector<vector<int> > &C, int crossover){
+
+    MatrixOps helper = *(new MatrixOps());
+    int dimension = A.size();
+
+    int padding = helper.findOptDim(dimension, crossover);
+    helper.initPadding(A, padding);
+    helper.initPadding(B, padding);
+    helper.initPadding(C, padding);
+    strassenMult(A,B,C,0,0,0,0,0,0,padding, crossover);
+
+    helper.removePadding(A, dimension);
+    helper.removePadding(B, dimension);
+    helper.removePadding(C, dimension);
+    return C;
+}
+
 void findOptimalconvThreshold() {
 
     for (int convThreshold = 8; convThreshold <= 256; convThreshold*=2){
-        //for (convThreshold = 2; convThreshold <= 64; convThreshold++){
         double total = 0;
-        //cout << "multiplying matrices, n = " << i << endl;
         for (int j = 0; j < 5; j ++){
-            vector<vector<int> > &first();
-            vector<vector<int> > &second();
+            vector<vector<int> > first(256, vector<int>(256));
+            vector<vector<int> > second(256, vector<int>(256));
+            vector<vector<int> > third(256, vector<int>(256));
             MatrixOps help = *(new MatrixOps());
-            help.makeidentity(first, 256);
-            help.makeidentity(second, 256);
+            help.makeidentity(first, second, 256);
 
             clock_t start;
             start = clock();
 
-            vector<vector<int> > &result() = multiply(m1, m2);
+            vector<vector<int> > result(256, vector<int>(256));
+            result = multiply(first, second, third, convThreshold);
             total += (std::clock() - start) / (double)(CLOCKS_PER_SEC);
-            delete(m1);
-            delete(m2);
-            delete(m3);
         }
 
         cout << convThreshold << "\t" << total / 5 << endl;
 
-        //cout << "finished multiplying.\n" << endl;
-
     }
 }
 
-vector<vector<int> >& FileToMatrix(char* inputfile, int dimension, int order){
-    vector<vector<int>> matrix(dimension, vector<int>(dimension));
+vector<vector<int> >& FileToMatrix(vector<vector<int> >& matrix, char* inputfile, int dimension, int order){
 
+    matrix.resize(dimension, vector<int>(dimension));
     ifstream inFile(inputfile);
     string line;
     for (int i = 0; i < pow(dimension,2)*order; ++i)
@@ -196,64 +308,71 @@ int main(int argc, char *argv[])
     //Still need to figure out experimental crossover point, possibly using time library,
     // not sure how to calculate number of operations
 
-    long double startTime;
-    long double conventionaltime;
-    long double normaltime;
-    long double varianttime;
-
-    if(argc!= 3){
-         cout << "You must have 3 command-line arguments." << "\n";
-         return - 1;
+    int flag = atoi(argv[3]);
+    if (flag == 0){
+        findOptimalconvThreshold();
     }
 
-    int crossover = atoi(argv[1]);
-    int dim = atoi(argv[2]);
+    if (flag == 1) {
+        long double startTime;
+        long double conventionaltime;
+        long double normaltime;
+        long double varianttime;
 
-    vector<vector<int> > first(dim,vector<int>(dim));
-    vector<vector<int> > second(dim,vector<int>(dim));
-    vector<vector<int> > result(dim,vector<int>(dim));
+        if (argc != 4) {
+            cout << "You must have 3 command-line arguments." << "\n";
+            return -1;
+        }
 
-    MatrixOps help = *(new MatrixOps());
-    help.make(first,second,dim);
+        int crossover = atoi(argv[1]);
+        int dim = atoi(argv[2]);
 
+        vector<vector<int> > first(dim, vector<int>(dim));
+        vector<vector<int> > second(dim, vector<int>(dim));
+        vector<vector<int> > result(dim, vector<int>(dim));
 
-    vector<vector<int> > test(dim,vector<int>(dim));
-    help.makeidentity(test, test, dim);
-
-
-    //Have to fix timing stuff, not sure if it works
-
-    //Conventional fully works on test matrices
-    startTime = time(0);
-    //conventional(test,test,result, dim);
-    conventionaltime = 1000 * (time(0) - startTime);
-    
-    //No crossover strassen (DOESNT WORK NEED TO FIGURE OUT WHY)
-    startTime = time(0);
-    //strassen(first, second, result, dim, 0);
-    normaltime = 1000 * (time(0) - startTime);
-    
-    //Crossover strassen doesn't work either
-    startTime = time(0);
-    strassen(test, test, result, dim, crossover);
-    varianttime = 1000 * (time(0) - startTime);
+        MatrixOps help = *(new MatrixOps());
+        help.make(first, second, dim);
 
 
-    cout << "Standard"<< "\n";
-    cout << "Size "
-         << dim << " : " << conventionaltime << "\n";
-    cout << "\n";
+        vector<vector<int> > test(dim, vector<int>(dim));
+        help.makeidentity(test, test, dim);
 
-    cout << "Normal strassen"<< "\n";
-    cout << "Size "
-         << dim << " : " << normaltime << "\n";
-    cout << "\n";
 
-    cout << "Variant strassen"<< "\n";
-    cout << "Crossover used: "<< crossover << "\n";
-    cout << "Size "
-         << dim << " : " << varianttime << "\n";
-    cout << "\n";
+        //Have to fix timing stuff, not sure if it works
 
-    return 0;
+        //Conventional fully works on test matrices
+        startTime = time(0);
+        //conventional(test,test,result, dim);
+        conventionaltime = 1000 * (time(0) - startTime);
+
+        //No crossover strassen (DOESNT WORK NEED TO FIGURE OUT WHY)
+        startTime = time(0);
+        //strassen(first, second, result, dim, 0);
+        normaltime = 1000 * (time(0) - startTime);
+
+        //Crossover strassen doesn't work either
+        startTime = time(0);
+        strassen(test, test, result, dim, crossover);
+        varianttime = 1000 * (time(0) - startTime);
+
+
+        cout << "Standard" << "\n";
+        cout << "Size "
+             << dim << " : " << conventionaltime << "\n";
+        cout << "\n";
+
+        cout << "Normal strassen" << "\n";
+        cout << "Size "
+             << dim << " : " << normaltime << "\n";
+        cout << "\n";
+
+        cout << "Variant strassen" << "\n";
+        cout << "Crossover used: " << crossover << "\n";
+        cout << "Size "
+             << dim << " : " << varianttime << "\n";
+        cout << "\n";
+
+        return 0;
+    }
 }

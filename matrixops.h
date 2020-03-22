@@ -22,6 +22,10 @@ class MatrixOps{
         void initPadding(vector<vector<int> > &first, int newdim);
         void removePadding(vector<vector<int> > &first, int newdim);
         void printDiagonal(vector<vector<int> > &first, int dimension);
+        void add(vector<vector<int> > &A, vector<vector<int> > &B,
+             vector<vector<int> > &C, int topA, int leftA, int topB, int leftB, int topC, int leftC, int dimension);
+        void sub(vector<vector<int> > &A, vector<vector<int> > &B,
+             vector<vector<int> > &C, int topA, int leftA, int topB, int leftB, int topC, int leftC, int dimension);
 };
 
 MatrixOps::MatrixOps() {
@@ -127,4 +131,18 @@ void MatrixOps::printDiagonal(vector<vector<int> > &first, int dimension){
     for (int i = 0; i < dimension; ++i) {
         printf("%d\n", first[i][i]);
     }
+}
+
+void MatrixOps::add(vector<vector<int> > &A, vector<vector<int> > &B,
+         vector<vector<int> > &C, int topA, int leftA, int topB, int leftB, int topC, int leftC, int dimension){
+    for (int i = 0; i < dimension; i++)
+        for (int j = 0; j < dimension; j++)
+            C[topC + i][leftC + j] = A[topA + i][leftA + j] + B[topB + i][leftB + j];
+}
+
+void MatrixOps::sub(vector<vector<int> > &A, vector<vector<int> > &B,
+              vector<vector<int> > &C, int topA, int leftA, int topB, int leftB, int topC, int leftC, int dimension){
+    for (int i = 0; i < dimension; i++)
+        for (int j = 0; j < dimension; j++)
+            C[topC + i][leftC + j] = A[topA + i][leftA + j] - B[topB + i][leftB + j];
 }
