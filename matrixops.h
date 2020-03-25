@@ -22,10 +22,10 @@ class MatrixOps{
         void makepad(vector<vector<int> > &first, int newdim);
         void removepad(vector<vector<int> > &first, int newdim);
         void printDiagonal(vector<vector<int> > &first, int dimension);
-        void add(vector<vector<int> > &A, vector<vector<int> > &B,
-             vector<vector<int> > &C, int topA, int leftA, int topB, int leftB, int topC, int leftC, int dimension);
-        void sub(vector<vector<int> > &A, vector<vector<int> > &B,
-             vector<vector<int> > &C, int topA, int leftA, int topB, int leftB, int topC, int leftC, int dimension);
+        void combine (std::vector< std::vector<int> > &A,
+                              std::vector< std::vector<int> > &B,
+                              int row, int col, int d);
+        void divide(std::vector< std::vector<int> > &A, std::vector< std::vector<int> > &B,int row, int col, int d);
 };
 
 MatrixOps::MatrixOps() {
@@ -99,17 +99,17 @@ void MatrixOps::pad(vector<vector<int> > &padfirst, vector<vector<int> > &padsec
 }
 
 int MatrixOps::findPad(int n, int crossover){
-    int counter = 0;
+    int temp = 0;
     while (n > crossover) {
         if (n % 2 == 0) {
             n /= 2;
         }
         else {
-        n = (n + 1) / 2;
-        counter++;
+            n = (n + 1) / 2;
+            temp++;
         }
     }
-    return n*pow(2,counter);
+    return (n*pow(2,temp));
 }
 
 
@@ -133,16 +133,30 @@ void MatrixOps::printDiagonal(vector<vector<int> > &first, int dimension){
     }
 }
 
-void MatrixOps::add(vector<vector<int> > &A, vector<vector<int> > &B,
-         vector<vector<int> > &C, int topA, int leftA, int topB, int leftB, int topC, int leftC, int dimension){
-    for (int i = 0; i < dimension; i++)
-        for (int j = 0; j < dimension; j++)
-            C[topC + i][leftC + j] = A[topA + i][leftA + j] + B[topB + i][leftB + j];
+
+void MatrixOps::divide (std::vector< std::vector<int> > &A,
+            std::vector< std::vector<int> > &B,
+            int row, int col, int d)
+{
+    for (int i1 = 0, i2 = row; i1 < d; i1++, i2++)
+    {
+        for (int j1 = 0, j2 = col; j1 < d; j1++, j2++)
+        {
+            B[i1][j1] = A[i2][j2];
+        }
+    }
 }
 
-void MatrixOps::sub(vector<vector<int> > &A, vector<vector<int> > &B,
-              vector<vector<int> > &C, int topA, int leftA, int topB, int leftB, int topC, int leftC, int dimension){
-    for (int i = 0; i < dimension; i++)
-        for (int j = 0; j < dimension; j++)
-            C[topC + i][leftC + j] = A[topA + i][leftA + j] - B[topB + i][leftB + j];
+// combine the 4 matrices in a resulting matrix
+void MatrixOps::combine (	std::vector< std::vector<int> > &A,
+               std::vector< std::vector<int> > &B,
+               int row, int col, int d)
+{
+    for (int i1 = 0, i2 = row; i1 < d; i1++, i2++)
+    {
+        for (int j1 = 0, j2 = col; j1 < d; j1++, j2++)
+        {
+            B[i2][j2] = A[i1][j1];
+        }
+    }
 }
