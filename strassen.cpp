@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include "matrixops.h"
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -164,8 +165,8 @@ void newstrassen(vector< vector<int> > &a, vector< vector<int> > &b,
 
         vector<int> quad(newdim);
         vector< vector<int> > a11(newdim, quad), a12(newdim, quad), a21(newdim, quad), 
-        a22(newdim, quad), b11(newdim, quad), b12(newdim, quad), b21(newdim, quad), b22(newdim, quad)
-        ,c11(newdim, quad), c12(newdim, quad), c21(newdim, quad), c22(newdim, quad);
+        a22(newdim, quad), b11(newdim, quad), b12(newdim, quad), b21(newdim, quad), b22(newdim, quad),
+        c11(newdim, quad), c12(newdim, quad), c21(newdim, quad), c22(newdim, quad);
         
         helper.divide(a, a11, 0 , 0, newdim);
         helper.divide(a, a12, 0 , newdim, newdim);
@@ -221,29 +222,6 @@ void newstrassen(vector< vector<int> > &a, vector< vector<int> > &b,
     }
 }
 
-void findcrossover() {
-
-    for (int crossover = 128; crossover <= 128; crossover*=1){
-        double total = 0;
-        for (int j = 0; j < 3; j++){
-            vector<vector<int> > first(600, vector<int>(600));
-            vector<vector<int> > second(600, vector<int>(600));
-            vector<vector<int> > third(600, vector<int>(600));
-            MatrixOps help = *(new MatrixOps());
-            help.makeidentity(first, second, 600);
-
-            clock_t start;
-            start = clock();
-
-            newstrassen(first, second, third, 600, crossover);
-            clock_t end = clock();
-            total += (end - start) / (double)(CLOCKS_PER_SEC);
-        }
-
-        cout << crossover << "\t" << total / 3 << endl;
-
-    }
-}
 
 void convertFile(vector<vector<int> >& first, vector<vector<int> >& second, char* inputfile, int dim){
 
@@ -253,28 +231,42 @@ void convertFile(vector<vector<int> >& first, vector<vector<int> >& second, char
     ifstream inFile(inputfile);
     string line;
 
-    getline(inFile, line);
-
-    for (int i = 0; i < dim; ++i)
-    {
-        for (int j = 0; j < dim; ++j)
-        {
-            getline(inFile, line);
-            first[i][j] = stoi(line);
+    for (int i = 0; i < (2*dim*dim); i++) {
+        getline(inFile, line);
+        if (i < (dim * dim)) {
+            first[i / dim][i % dim] = stoi(line);
         }
-    }
-
-    for (int i = dim; i < (2 * dim); ++i)
-    {
-        for (int j = dim; i < (2 * dim); ++j)
-        {
-            getline(inFile, line);
-            second[i][j] = stoi(line);
+        else{
+            second[(i - (dim * dim))/dim][i % dim] = stoi(line);
         }
     }
 
     inFile.close();
 }
+
+
+void findcrossover() {
+
+    for (int crossover = 128; crossover <= 256; crossover*=2){
+        double total = 0;
+        for (int j = 0; j < 3; j++){
+            vector<vector<int> > first(800, vector<int>(800));
+            vector<vector<int> > second(800, vector<int>(800));
+            vector<vector<int> > third(800, vector<int>(800));
+            MatrixOps help = *(new MatrixOps());
+            help.makeidentity(first, second, 800);
+
+            clock_t start;
+            start = clock();
+
+            newstrassen(first, second, third, 800, crossover);
+            clock_t end = clock();
+            total += (end - start) / (double)(CLOCKS_PER_SEC);
+        }
+        cout << crossover << "\t" << total / 3 << endl;
+    }
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -283,8 +275,8 @@ int main(int argc, char *argv[])
     
     //Still need to figure out experimental crossover point, made function to do it
 
-    if (argc != 4) {
-        cout << "You must have 4 command-line arguments." << "\n";
+    if (argc != 5) {
+        cout << "You must have 5 command-line arguments." << "\n";
         return -1;
     }
 
