@@ -123,7 +123,7 @@ void MatrixOps::makepad(vector<vector<int> > &first, int newdim){
 void MatrixOps::removepad(vector<vector<int> > &first, int newdim){
     first.resize(newdim);
     for (int i = 0; i < newdim; i++){
-        first.resize(newdim);
+        first[i].resize(newdim);
     }
 }
 
