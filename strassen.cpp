@@ -388,5 +388,6 @@ int main(int argc, char *argv[]) {
         float p = atof(argv[4]);
         float t = triangles(p, dim, crossover);
         printf("%f\n", t);
+        return 0;
     }
 }
