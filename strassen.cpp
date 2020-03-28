@@ -8,7 +8,7 @@
 #include <math.h>
 
 using namespace std;
-int crossover = 128;
+
 
 class MatrixOps{
 public:
@@ -26,10 +26,10 @@ public:
     void makepad(vector<vector<int> > &first, int newdim);
     void removepad(vector<vector<int> > &first, int newdim);
     void printDiagonal(vector<vector<int> > &first, int dimension);
-    void combine (std::vector< std::vector<int> > &A,
-                  std::vector< std::vector<int> > &B,
+    void combine (vector< vector<int> > &A,
+                  vector< vector<int> > &B,
                   int row, int col, int d);
-    void divide(std::vector< std::vector<int> > &A, std::vector< std::vector<int> > &B,int row, int col, int d);
+    void divide(vector< vector<int> > &A, vector<vector<int> > &B,int row, int col, int d);
 };
 
 MatrixOps::MatrixOps() {
@@ -137,8 +137,8 @@ void MatrixOps::printDiagonal(vector<vector<int> > &first, int dimension){
     }
 }
 
-void MatrixOps::combine (std::vector< std::vector<int> > &first,
-                         std::vector< std::vector<int> > &second, int row, int col, int dim)
+void MatrixOps::combine (vector< vector<int> > &first,
+                         vector<vector<int> > &second, int row, int col, int dim)
 {
     for (int i = 0, r = row; i < dim; i++, r++)
     {
@@ -149,8 +149,8 @@ void MatrixOps::combine (std::vector< std::vector<int> > &first,
     }
 }
 
-void MatrixOps::divide (std::vector< std::vector<int> > &first,
-                        std::vector< std::vector<int> > &second, int row, int col, int dim)
+void MatrixOps::divide(vector< vector<int> > &first,
+                        vector< vector<int> > &second, int row, int col, int dim)
 {
     for (int i = 0, r = row; i < dim; i++, r++)
     {
@@ -174,7 +174,7 @@ void conventional(vector<vector<int> > &first,
     }
 }
 
-//This one works, has efficient padding implementation
+//This works, has efficient padding implementation
 void newstrassen(vector< vector<int> > &firstmat, vector< vector<int> > &secondmat,
                    vector< vector<int> > &resultmat, int dim, int crossover){
 
@@ -296,7 +296,7 @@ float triangles(float p, int dim, int crossover) {
 
     // Set up random number generator
     default_random_engine generator(time(0));
-    std::bernoulli_distribution distribution(p);
+    bernoulli_distribution distribution(p);
 
     for (int i = 0; i < dim; i++) {
         for (int j = i; j < dim; j++) {
@@ -335,7 +335,7 @@ int main(int argc, char *argv[]) {
 
     int flag = atoi(argv[1]);
     char *infile = argv[3];
-    //int crossover = atoi(argv[3]);
+    int crossover = atoi(argv[3]);
     int dim = atoi(argv[2]);
 
     // Have to read first d^2 numbers into one matrix and the rest into the
