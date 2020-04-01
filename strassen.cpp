@@ -26,123 +26,6 @@ void conventional(vector<vector<int> > &first, vector<vector<int> > &second,
 
 // To execute normal Strassen let crossover = 0, currently have crossover in
 // command-line, has some bugs
-void strassen(vector<vector<int> > &first, vector<vector<int> > &second,
-              vector<vector<int> > &result, int n, int crossover) {
-    MatrixOps helper = *(new MatrixOps());
-    if (n <= crossover) {
-        conventional(first, second, result, n);
-    } else {
-        int paddedsize = helper.powerround(n);
-        int blocksize = paddedsize / 2;
-
-        vector<int> pads(paddedsize);
-        vector<vector<int> > padfirst(paddedsize, pads);
-        vector<vector<int> > padsecond(paddedsize, pads);
-        vector<vector<int> > padresult(paddedsize, pads);
-
-        if (n != paddedsize) {
-            helper.pad(padfirst, padsecond, first, second, n);
-        } else {
-            padfirst = first;
-            padsecond = second;
-        }
-
-        vector<int> block(blocksize);
-
-        vector<vector<int> > firstq1(blocksize, block),
-            firstq2(blocksize, block);
-        vector<vector<int> > firstq3(blocksize, block),
-            firstq4(blocksize, block);
-        vector<vector<int> > secondq1(blocksize, block),
-            secondq2(blocksize, block);
-        vector<vector<int> > secondq3(blocksize, block),
-            secondq4(blocksize, block);
-        vector<vector<int> > thirdq1(blocksize, block),
-            thirdq2(blocksize, block);
-        vector<vector<int> > thirdq3(blocksize, block),
-            thirdq4(blocksize, block);
-
-        vector<vector<int> > ablock(blocksize, block);
-        vector<vector<int> > bblock(blocksize, block);
-
-        vector<vector<int> > p1(blocksize, block);
-        vector<vector<int> > p2(blocksize, block);
-        vector<vector<int> > p3(blocksize, block);
-        vector<vector<int> > p4(blocksize, block);
-        vector<vector<int> > p5(blocksize, block);
-        vector<vector<int> > p6(blocksize, block);
-        vector<vector<int> > p7(blocksize, block);
-
-        // partitioning matrix into its quadrants/blocks
-        for (int i = 0; i < blocksize; i++) {
-            for (int j = 0; j < blocksize; j++) {
-                firstq1[i][j] = padfirst[i][j];
-                firstq2[i][j] = padfirst[i][j + blocksize];
-                firstq3[i][j] = padfirst[i + blocksize][j];
-                firstq4[i][j] = padfirst[i + blocksize][j + blocksize];
-                secondq1[i][j] = padsecond[i][j];
-                secondq2[i][j] = padsecond[i][j + blocksize];
-                secondq3[i][j] = padsecond[i + blocksize][j];
-                secondq4[i][j] = padsecond[i + blocksize][j + blocksize];
-            }
-        }
-
-        // constructing submatrices
-        helper.add(firstq1, firstq4, ablock, blocksize);
-        helper.add(secondq1, secondq4, bblock, blocksize);
-        strassen(ablock, bblock, p1, blocksize, crossover);
-
-        helper.add(firstq3, firstq4, ablock, blocksize);
-        strassen(ablock, secondq1, p2, blocksize, crossover);
-
-        helper.sub(secondq2, secondq4, bblock, blocksize);
-        strassen(firstq1, bblock, p3, blocksize, crossover);
-
-        helper.sub(secondq3, secondq1, bblock, blocksize);
-        strassen(firstq4, bblock, p4, blocksize, crossover);
-
-        helper.add(firstq1, firstq2, ablock, blocksize);
-        strassen(ablock, secondq4, p5, blocksize, crossover);
-
-        helper.sub(firstq3, firstq1, ablock, blocksize);
-        helper.add(secondq1, secondq2, bblock, blocksize);
-        strassen(ablock, bblock, p6, blocksize, crossover);
-
-        helper.sub(firstq2, firstq4, ablock, blocksize);
-        helper.add(secondq2, secondq4, bblock, blocksize);
-        strassen(ablock, bblock, p7, blocksize, crossover);
-
-        helper.add(p1, p4, ablock, blocksize);
-        helper.sub(ablock, p5, bblock, blocksize);
-        helper.add(bblock, p7, secondq1, blocksize);
-
-        helper.add(p3, p5, thirdq2, blocksize);
-
-        helper.add(p2, p4, thirdq3, blocksize);
-
-        helper.sub(p1, p2, ablock, blocksize);
-        helper.add(ablock, p3, bblock, blocksize);
-        helper.add(bblock, p6, thirdq4, blocksize);
-
-        // calculate result matrix
-        for (int i = 0; i < blocksize; i++) {
-            for (int j = 0; j < blocksize; j++) {
-                padresult[i][j] = thirdq1[i][j];
-                padresult[i][blocksize + j] = thirdq2[i][j];
-                padresult[blocksize + i][j] = thirdq3[i][j];
-                padresult[blocksize + i][blocksize + j] = thirdq4[i][j];
-            }
-        }
-
-        // remove additional values from expanded matrix
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                result[i][j] = padresult[i][j];
-            }
-        }
-    }
-}
-
 // This one works, has efficient padding implementation
 void newstrassen(vector<vector<int> > &a, vector<vector<int> > &b,
                  vector<vector<int> > &c, int dim, int crossover) {
@@ -277,7 +160,8 @@ float triangles(float p, int dim, int crossover) {
     std::bernoulli_distribution distribution(p);
 
     for (int i = 0; i < dim; i++) {
-        for (int j = i; j < dim; j++) {
+        graph[i][i] = 0;
+        for (int j = i + 1; j < dim; j++) {
             bool r = distribution(generator);
             if (r) {
                 graph[i][j] = 1;
@@ -299,12 +183,6 @@ float triangles(float p, int dim, int crossover) {
 }
 
 int main(int argc, char *argv[]) {
-    // Wrote function to read in a file of numbers, for now we will use
-    // randomly generated numbers to test
-
-    // Still need to figure out experimental crossover point, made function to
-    // do it
-
     if (argc != 5) {
         cout << "You must have 5 command-line arguments."
              << "\n";
@@ -349,45 +227,15 @@ int main(int argc, char *argv[]) {
         newstrassen(test, test, result, dim, crossover);
 
         help.printDiagonal(result, dim);
-
-        /**
-        //conventional fully works on test matrices
-        startTime = time(0);
-        //conventional(test,test,result, dim);
-        conventionaltime = 1000 * (time(0) - startTime);
-
-        //No crossover strassen (DOESNT WORK NEED TO FIGURE OUT WHY)
-        startTime = time(0);
-        //strassen(first, second, result, dim, 0);
-        normaltime = 1000 * (time(0) - startTime);
-
-        //crossover strassen doesn't work either
-        startTime = time(0);
-        //strassen(test, test, result, dim, crossover);
-        varianttime = 1000 * (time(0) - startTime);
-
-
-        cout << "Standard" << "\n";
-        cout << "Size "
-             << dim << " : " << conventionaltime << "\n";
-        cout << "\n";
-
-        cout << "Normal strassen" << "\n";
-        cout << "Size "
-             << dim << " : " << normaltime << "\n";
-        cout << "\n";
-
-        cout << "Variant strassen" << "\n";
-        cout << "crossover used: " << crossover << "\n";
-        cout << "Size "
-             << dim << " : " << varianttime << "\n";
-        cout << "\n";**/
-
         return 0;
     } else if (flag == 4) {
         float p = atof(argv[4]);
-        float t = triangles(p, dim, crossover);
-        printf("%f\n", t);
+        float total = 0;
+        for (int i = 0; i < 5; i++) {
+            total += triangles(p, dim, crossover);
+        }
+        float average = total / 5;
+        printf("%f\n", average);
         return 0;
     }
 }
